@@ -52,7 +52,10 @@ export async function getMealEntries(
 
   if (error) throw error;
 
-  return (data ?? []) as MealEntry[];
+ return (data ?? []).map((entry: any) => ({
+  ...entry,
+  food: Array.isArray(entry.food) ? entry.food[0] : entry.food,
+}));
 }
 
 export async function addMealEntry({
