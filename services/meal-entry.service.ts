@@ -6,19 +6,21 @@ export type MealType =
   | "dinner"
   | "snack";
 
+type Food = {
+  id: string;
+  name: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+};
+
 export type MealEntry = {
   id: string;
   amount: number;
   consumed_at: string;
   meal_type: MealType;
-  food: {
-    id: string;
-    name: string;
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
+  food: Food;
 };
 
 export async function getMealEntries(
@@ -28,7 +30,9 @@ export async function getMealEntries(
     data: { session },
   } = await supabase.auth.getSession();
 
-  if (!session) throw new Error("Keine Session.");
+  if (!session) {
+    throw new Error("Keine Session.");
+  }
 
   const { data, error } = await supabase
     .from("meal_entries")
@@ -48,14 +52,21 @@ export async function getMealEntries(
     `)
     .eq("user_id", session.user.id)
     .eq("consumed_at", date)
-    .order("created_at");
+    .order("created_at", { ascending: true });
 
   if (error) throw error;
 
-  return (data ?? []).map((entry: any) => ({
-    ...entry,
-    food: Array.isArray(entry.food) ? entry.food[0] : entry.food,
+  const entries: MealEntry[] = (data ?? []).map((entry: any) => ({
+    id: entry.id,
+    amount: entry.amount,
+    consumed_at: entry.consumed_at,
+    meal_type: entry.meal_type,
+    food: Array.isArray(entry.food)
+      ? entry.food[0]
+      : entry.food,
   }));
+
+  return entries;
 }
 
 export async function addMealEntry({
@@ -73,7 +84,9 @@ export async function addMealEntry({
     data: { session },
   } = await supabase.auth.getSession();
 
-  if (!session) throw new Error("Keine Session.");
+  if (!session) {
+    throw new Error("Keine Session.");
+  }
 
   const { error } = await supabase
     .from("meal_entries")
@@ -103,17 +116,13 @@ export async function updateMealAmount(
 ) {
   const { error } = await supabase
     .from("meal_entries")
-    .update({
-      amount,
-    })
+    .update({ amount })
     .eq("id", id);
 
   if (error) throw error;
 }
 
-export function calculateNutrition(
-  entries: MealEntry[]
-) {
+export function calculateNutrition(entries: MealEntry[]) {
   return entries.reduce(
     (total, entry) => {
       const factor = entry.amount / 100;
