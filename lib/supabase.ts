@@ -1,26 +1,30 @@
-import { createBrowserClient } from "@supabase/ssr";
+import { createClient } from '@supabase/supabase-js'
 
-export function createClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+ throw new Error('Missing Supabase environment variables')
 }
 
-import { createBrowserClient } from "@supabase/ssr";
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-export function createClient() {
-  console.log(
-    "SUPABASE_URL:",
-    process.env.NEXT_PUBLIC_SUPABASE_URL ? "OK" : "MISSING"
-  );
-  console.log(
-    "SUPABASE_KEY:",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "OK" : "MISSING"
-  );
+export async function getSession() {
+ const {
+ data: { session },
+ } = await supabase.auth.getSession()
+ return session
+}
 
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+export async function getCurrentUser() {
+ const session = await getSession()
+ if (!session) return null
+ 
+ const { data: user } = await supabase
+ .from('profiles')
+ .select('*')
+ .eq('id', session.user.id)
+ .single()
+ 
+ return user
 }
