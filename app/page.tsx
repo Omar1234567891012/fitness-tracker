@@ -1,4 +1,5 @@
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import UserMenu from "@/components/UserMenu";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import WeightTracker from "@/components/WeightTracker";
 import DailyGoals from "@/components/dashboard/DailyGoals";
