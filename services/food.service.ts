@@ -1,7 +1,5 @@
 import { createClient } from "@/lib/supabase";
 
-const supabase = createClient();;
-
 export type Food = {
   id: string;
   name: string;
@@ -12,6 +10,8 @@ export type Food = {
 };
 
 export async function getFoods(): Promise<Food[]> {
+  const supabase = createClient();
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -36,6 +36,8 @@ export async function addFood(food: {
   carbs: number;
   fat: number;
 }) {
+  const supabase = createClient();
+
   const {
     data: { session },
   } = await supabase.auth.getSession();

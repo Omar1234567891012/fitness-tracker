@@ -1,7 +1,5 @@
 import { createClient } from "@/lib/supabase";
 
-const supabase = createClient();
-
 export type Profile = {
   id: string;
   name: string | null;
@@ -16,11 +14,15 @@ export type Profile = {
 };
 
 export async function getProfile(): Promise<Profile | null> {
+  const supabase = createClient();
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  if (!session) throw new Error("Keine Session vorhanden.");
+  if (!session) {
+    throw new Error("Keine Session vorhanden.");
+  }
 
   const { data, error } = await supabase
     .from("profiles")
@@ -28,7 +30,9 @@ export async function getProfile(): Promise<Profile | null> {
     .eq("id", session.user.id)
     .maybeSingle();
 
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
 
   return data;
 }
@@ -43,11 +47,15 @@ export async function saveProfile(profile: {
   carbs_goal: number;
   fat_goal: number;
 }) {
+  const supabase = createClient();
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  if (!session) throw new Error("Keine Session vorhanden.");
+  if (!session) {
+    throw new Error("Keine Session vorhanden.");
+  }
 
   const { error } = await supabase
     .from("profiles")
@@ -64,5 +72,7 @@ export async function saveProfile(profile: {
       fat_goal: profile.fat_goal,
     });
 
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
 }

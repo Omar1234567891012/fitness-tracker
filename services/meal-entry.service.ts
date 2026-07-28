@@ -1,7 +1,5 @@
 import { createClient } from "@/lib/supabase";
 
-const supabase = createClient();
-
 export type MealType =
   | "breakfast"
   | "lunch"
@@ -28,6 +26,8 @@ export type MealEntry = {
 export async function getMealEntries(
   date: string
 ): Promise<MealEntry[]> {
+  const supabase = createClient();
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -82,6 +82,8 @@ export async function addMealEntry({
   mealType: MealType;
   date: string;
 }) {
+  const supabase = createClient();
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -104,6 +106,8 @@ export async function addMealEntry({
 }
 
 export async function deleteMealEntry(id: string) {
+  const supabase = createClient();
+
   const { error } = await supabase
     .from("meal_entries")
     .delete()
@@ -116,6 +120,8 @@ export async function updateMealAmount(
   id: string,
   amount: number
 ) {
+  const supabase = createClient();
+
   const { error } = await supabase
     .from("meal_entries")
     .update({ amount })
